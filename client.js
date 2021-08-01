@@ -9,4 +9,5 @@ socket.on("connect", () => {
     console.log("Client has connected with id: " + socket.id);
 })
 
+
 console.log(process.argv);
