@@ -1,14 +1,12 @@
-const express = require("express");
-const app = express();
-const http = require("http");
-const server = http.createServer(app);
+const server = require("http").createServer();
+const io = require("socket.io")(server);
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 5050;
 
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
-  });
+io.on("connection", client => {
+    console.log("a user connected");
+})
 
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+server.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
