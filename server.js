@@ -5,6 +5,8 @@ const PORT = 5050;
 
 let usersConnected = 0;
 const clientsConnected = {};
+const players = {};
+let unmatched;
 
 const addClient = socket => {
     console.log("Client has connected.", socket.id);
@@ -12,7 +14,7 @@ const addClient = socket => {
     usersConnected++;
     if (usersConnected === 2 ) {
         console.log("Starting the game.")
-        // Run start game function here.
+        socket.broadcast.emit("game-start")
     }
 };
 
@@ -28,9 +30,16 @@ io.on("connection", socket => {
 
     socket.on("disconnect", () => {
         removeClient(socket);
-        socket.broadcast.emit("clientdisconnect", id);
+        socket.emit("clientdisconnect", id);
     })
 })
+
+function isThereAnOpponent(socket) {
+    if (!players[socket.id].opponent) {
+        return;
+    }
+    return players[players[socket.id].opponent].socket;
+}
 
 
 
