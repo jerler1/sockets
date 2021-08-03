@@ -8,35 +8,35 @@ const clientsConnected = {};
 const firstPlayer = {};
 const secondPlayer = {};
 
+io.on("connection", (socket) => {
+  let id = socket.id;
+
+  addClient(socket);
+
+  io.on("disconnect", () => {
+    socket.broadcast.emit("clientdisconnect", id);
+    removeClient(socket);
+  });
+});
+
 const addClient = (socket) => {
   console.log("Client has connected.", socket.id);
   clientsConnected[socket.id] = socket;
   convertSocketToPlayer(socket);
   usersConnected++;
   if (usersConnected === 2) {
-    console.log("Starting the game.");
-    socket.broadcast.emit("game-start");
+    startingGame();
   }
 };
 
 const removeClient = (socket) => {
   console.log("Client has disconnected.", socket.id);
   delete clientsConnected[socket.id];
+  usersConnected--;
 };
 
-io.on("connection", (socket) => {
-  let id = socket.id;
-
-  addClient(socket);
-
-  socket.on("disconnect", () => {
-    socket.broadcast.emit("clientdisconnect", id);
-    removeClient(socket);
-  });
-});
-
-function convertSocketToPlayer(socket) {
-  firstPlayer
+const convertSocketToPlayer = (socket) => {
+  Object.keys(firstPlayer.length !== 0)
     ? (secondPlayer = {
         playersSocket: socket,
         symbol: "O",
@@ -49,6 +49,14 @@ function convertSocketToPlayer(socket) {
         firstPlayer: true,
         opponentsSocket: null,
       });
+};
+
+const startingGame = () => {
+    console.log("Adding opponent sockets.");
+    firstPlayer.opponentsSocket = secondPlayer.playersSocket;
+    secondPlayer.opponentsSocket = firstPlayer.playersSocket;
+    console.log("Starting the game.");
+    socket.broadcast.emit("game-start");
 }
 
 function isThereAnOpponent(socket) {
