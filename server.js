@@ -5,8 +5,9 @@ const PORT = 5050;
 
 let usersConnected = 0;
 const clientsConnected = {};
-const firstPlayer = {};
-const secondPlayer = {};
+let firstPlayer = {};
+let secondPlayer = {};
+let unmatched = true;
 
 io.on("connection", (socket) => {
   let id = socket.id;
@@ -25,7 +26,7 @@ const addClient = (socket) => {
   convertSocketToPlayer(socket);
   usersConnected++;
   if (usersConnected === 2) {
-    startingGame();
+    startingGame(socket);
   }
 };
 
@@ -36,35 +37,40 @@ const removeClient = (socket) => {
 };
 
 const convertSocketToPlayer = (socket) => {
-  Object.keys(firstPlayer.length !== 0)
-    ? (secondPlayer = {
-        playersSocket: socket,
-        symbol: "O",
-        firstPlayer: false,
-        opponentsSocket: null,
-      })
-    : (firstPlayer = {
-        playersSocket: socket,
-        symbol: "X",
-        firstPlayer: true,
-        opponentsSocket: null,
-      });
-};
-
-const startingGame = () => {
-    console.log("Adding opponent sockets.");
-    firstPlayer.opponentsSocket = secondPlayer.playersSocket;
-    secondPlayer.opponentsSocket = firstPlayer.playersSocket;
-    console.log("Starting the game.");
-    socket.broadcast.emit("game-start");
-}
-
-function isThereAnOpponent(socket) {
-  if (!players[socket.id].opponent) {
+  if (unmatched) {
+    firstPlayer = {
+      playersSocket: socket,
+      socketId: socket.id,
+      symbol: "X",
+      firstPlayer: true,
+      opponentsSocket: null,
+    };
+    unmatched = false;
     return;
   }
-  return players[players[socket.id].opponent].socket;
-}
+  secondPlayer = {
+    playersSocket: socket,
+    socketId: socket.id,
+    symbol: "O",
+    firstPlayer: false,
+    opponentsSocket: null,
+  };
+};
+
+const startingGame = (socket) => {
+  firstPlayer.opponentsSocket = secondPlayer.playersSocket;
+  secondPlayer.opponentsSocket = firstPlayer.playersSocket;
+  console.log("Starting the game.");
+  console.log("Sending game has started messages.");
+  io.to(firstPlayer.socketId).emit(
+    "gameStartMessage",
+    "Game Started. You are the first player."
+  );
+  io.to(secondPlayer.socketId).emit(
+    "gameStartMessage",
+    "Game Started. You are the second player."
+  );
+};
 
 server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
