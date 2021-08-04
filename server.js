@@ -8,6 +8,8 @@ const clientsConnected = {};
 let firstPlayer = {};
 let secondPlayer = {};
 let unmatched = true;
+// Starting turn at 2 to be able to use modulus effectively to determine even or odd.
+let turn = 2;
 const boardState = [
   [".", ".", "."],
   [".", ".", "."],
@@ -75,6 +77,51 @@ const startingGame = (socket) => {
     "gameStartMessage",
     "Game Started. You are the second player."
   );
+  newTurn(firstPlayer.playersSocket);
+};
+
+const newTurn = (socket) => {
+  if (turn % 2 === 0) {
+    turn++;
+    showBoard();
+    io.to(firstPlayer.socketId).emit(
+      "yourTurn",
+      "Your turn. Make a valid move via typing or using history (up and down arrows) to make a selection."
+    );
+    io.to(secondPlayer.socketId).emit(
+      "opponentsTurn",
+      "Your opponent is taking his turn.  Type resign or r to resign."
+    );
+  } else {
+    turn++;
+    showBoard();
+    io.to(secondPlayer.socketId).emit(
+      "yourTurn",
+      "Your turn. Make a valid move via typing or using history (up and down arrows) to make a selection."
+    );
+    io.to(firstPlayer.socketId).emit(
+      "opponentsTurn",
+      "Your opponent is taking his turn.  Type resign or r to resign."
+    );
+  }
+};
+
+const showBoard = () => {
+  io.local.emit(
+    "boardState",
+    `
+    ${boardState[0].join("")}
+    ${boardState[1].join("")}
+    ${boardState[2].join("")}`
+  );
+};
+
+const findCurrentOpponent = (socket) => {
+  if (firstPlayer.playersSocket === socket) {
+    return secondPlayer.playersSocket;
+  } else {
+    return firstPlayer.playersSocket;
+  }
 };
 
 server.listen(PORT, () => {
