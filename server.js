@@ -8,6 +8,11 @@ const clientsConnected = {};
 let firstPlayer = {};
 let secondPlayer = {};
 let unmatched = true;
+const boardState = [
+  [".", ".", "."],
+  [".", ".", "."],
+  [".", ".", "."],
+];
 
 io.on("connection", (socket) => {
   let id = socket.id;
