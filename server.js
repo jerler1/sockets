@@ -25,6 +25,15 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("clientdisconnect", id);
     removeClient(socket);
   });
+
+  socket.on("moveMade", ({socketId, selection}) => {
+    // Update board with selection.
+
+    // Check for game over.
+    // --Need a reset game state function.
+
+    // New turn.
+  });
 });
 
 const addClient = (socket) => {
