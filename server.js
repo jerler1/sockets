@@ -26,12 +26,10 @@ io.on("connection", (socket) => {
     removeClient(socket);
   });
 
-  socket.on("moveMade", ({socketId, selection}) => {
+  socket.on("moveMade", ({ socketId, selection }) => {
     // Update board with selection.
-
     // Check for game over.
     // --Need a reset game state function.
-
     // New turn.
   });
 });
@@ -93,25 +91,27 @@ const newTurn = (socket) => {
   if (turn % 2 === 0) {
     turn++;
     showBoard();
-    io.to(firstPlayer.socketId).emit(
-      "yourTurn",
-      "Your turn. Make a valid move via typing or using history (up and down arrows) to make a selection."
-    );
-    io.to(secondPlayer.socketId).emit(
-      "opponentsTurn",
-      "Your opponent is taking his turn.  Type resign or r to resign."
-    );
+    io.to(firstPlayer.socketId).emit("yourTurn", {
+      message:
+        "Your turn. Make a valid move via typing or using history (up and down arrows) to make a selection.",
+      player: firstPlayer,
+    });
+    io.to(secondPlayer.socketId).emit("opponentsTurn", {
+      message: "Your opponent is taking his turn.  Type resign or r to resign.",
+      player: secondPlayer,
+    });
   } else {
     turn++;
     showBoard();
-    io.to(secondPlayer.socketId).emit(
-      "yourTurn",
-      "Your turn. Make a valid move via typing or using history (up and down arrows) to make a selection."
-    );
-    io.to(firstPlayer.socketId).emit(
-      "opponentsTurn",
-      "Your opponent is taking his turn.  Type resign or r to resign."
-    );
+    io.to(secondPlayer.socketId).emit("yourTurn", {
+      message:
+        "Your turn. Make a valid move via typing or using history (up and down arrows) to make a selection.",
+      player: secondPlayer,
+    });
+    io.to(firstPlayer.socketId).emit("opponentsTurn", {
+      message: "Your opponent is taking his turn.  Type resign or r to resign.",
+      player: firstPlayer,
+    });
   }
 };
 
