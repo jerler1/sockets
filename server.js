@@ -195,8 +195,6 @@ const checkForGameOver = (socketId) => {
   ];
 
   for (let i = 0; i < rows.length; i++) {
-    let emptySlots = 0;
-    if (rows[i])
     if (rows[i] === completedRow[0] || rows[i] === completedRow[1]) {
       showBoard();
       if (socketId === firstPlayer.socketId) {
@@ -209,6 +207,10 @@ const checkForGameOver = (socketId) => {
         endGame();
       }
     }
+  }
+  if (turn >= 11) {
+    showBoard();
+    io.emit("tied", "Game is tied.");
   }
 };
 
