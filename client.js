@@ -27,25 +27,39 @@ socket.on("clientdisconnect", (id) => {
 socket.on("yourTurn", (data) => {
   console.log(data.message);
   require("readcommand").read(
-    { history: ["Resign", "1", "2", "3", "4", "5", "6", "7", "8", "9"] },
+    { history: ["resign", "1", "2", "3", "4", "5", "6", "7", "8", "9"] },
     function (err, args) {
-      socket.emit("moveMade", { socketId: socket.id, selection: args[0], player: data.player });
+      resign(args, socket);
+      socket.emit("moveMade", {
+        socketId: socket.id,
+        selection: args[0],
+        playerSymbol: data.playerSymbol,
+      });
     }
   );
 });
 
 socket.on("opponentsTurn", (data) => {
-  console.log(data);
-  //   require("readcommand").read(
-  //     { history: ["Resign", "r"] },
-  //     function (err, args) {
-  //       console.log(args);
-  //       console.log("Arguments: %s", JSON.stringify(args));
-  //     }
-  //   );
+  console.log(data.message);
+  require("readcommand").read(
+    { history: ["Resign", "r"] },
+    function (err, args) {
+      resign(args, socket);
+    }
+  );
 });
 
 // Tells the client the game has started and if they are first or second.
 socket.on("gameStartMessage", (message) => {
   console.log(message);
 });
+
+const resign = (args, socket) => {
+  if (args[0] === "r" || args[0] === "retire" || args[0] === "resign") {
+    socket.emit("resigning", {
+      socketId: socket.id,
+      selection: args[0],
+      playerSymbol: data.playerSymbol,
+    });
+  }
+};
