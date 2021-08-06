@@ -26,11 +26,16 @@ io.on("connection", (socket) => {
     removeClient(socket);
   });
 
-  socket.on("moveMade", ({ socketId, selection }) => {
+  socket.on("moveMade", ({ socketId, selection, playerSymbol }) => {
+    console.log(
+      socketId + "with symbol: " + playerSymbol + " at location " + selection
+    );
     // Update board with selection.
-    // Check for game over.
+    updateBoard(playerSymbol, selection);
+    checkForGameOver();
     // --Need a reset game state function.
     // New turn.
+    newTurn();
   });
 });
 
@@ -94,11 +99,10 @@ const newTurn = (socket) => {
     io.to(firstPlayer.socketId).emit("yourTurn", {
       message:
         "Your turn. Make a valid move via typing or using history (up and down arrows) to make a selection.",
-      player: firstPlayer,
+      playerSymbol: firstPlayer.symbol,
     });
     io.to(secondPlayer.socketId).emit("opponentsTurn", {
       message: "Your opponent is taking his turn.  Type resign or r to resign.",
-      player: secondPlayer,
     });
   } else {
     turn++;
@@ -106,11 +110,10 @@ const newTurn = (socket) => {
     io.to(secondPlayer.socketId).emit("yourTurn", {
       message:
         "Your turn. Make a valid move via typing or using history (up and down arrows) to make a selection.",
-      player: secondPlayer,
+      playerSymbol: secondPlayer.symbol,
     });
     io.to(firstPlayer.socketId).emit("opponentsTurn", {
       message: "Your opponent is taking his turn.  Type resign or r to resign.",
-      player: firstPlayer,
     });
   }
 };
@@ -125,11 +128,58 @@ const showBoard = () => {
   );
 };
 
-const findCurrentOpponent = (socket) => {
-  if (firstPlayer.playersSocket === socket) {
-    return secondPlayer.playersSocket;
-  } else {
-    return firstPlayer.playersSocket;
+const updateBoard = (playerSymbol, selection) => {
+  selection = parseInt(selection);
+  switch (selection) {
+    case 1:
+      boardState[0][0] = playerSymbol;
+      break;
+    case 2:
+      boardState[0][1] = playerSymbol;
+      break;
+    case 3:
+      boardState[0][2] = playerSymbol;
+      break;
+    case 4:
+      boardState[1][0] = playerSymbol;
+      break;
+    case 5:
+      boardState[1][1] = playerSymbol;
+      break;
+    case 6:
+      boardState[1][2] = playerSymbol;
+      break;
+    case 7:
+      boardState[2][0] = playerSymbol;
+      break;
+    case 8:
+      boardState[2][1] = playerSymbol;
+      break;
+    case 9:
+      boardState[2][2] = playerSymbol;
+      break;
+    default:
+      break;
+  }
+};
+
+const checkForGameOver = () => {
+  const completedRow = ["XXX", "OOO"];
+  const rows = [
+    boardState[0][0] + boardState[0][1] + boardState[0][2],
+    boardState[1][0] + boardState[1][1] + boardState[1][2],
+    boardState[2][0] + boardState[2][1] + boardState[2][2],
+    boardState[0][0] + boardState[1][0] + boardState[2][0],
+    boardState[0][1] + boardState[1][1] + boardState[2][2],
+    boardState[0][2] + boardState[1][2] + boardState[2][2],
+    boardState[0][0] + boardState[1][1] + boardState[2][2],
+    boardState[0][2] + boardState[1][1] + boardState[0][2],
+  ];
+
+  for (let i = 0; i < rows.length; i++) {
+    if (rows[i] === completedRow[0] || rows[i] === completedRow[1]) {
+      console.log("Game Over");
+    }
   }
 };
 
