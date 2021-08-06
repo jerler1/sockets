@@ -4,13 +4,13 @@ const io = require("socket.io")(server);
 const PORT = 5050;
 
 let usersConnected = 0;
-const clientsConnected = {};
+let clientsConnected = {};
 let firstPlayer = {};
 let secondPlayer = {};
 let unmatched = true;
 // Starting turn at 2 to be able to use modulus effectively to determine even or odd.
 let turn = 2;
-const boardState = [
+let boardState = [
   [".", ".", "."],
   [".", ".", "."],
   [".", ".", "."],
@@ -30,12 +30,30 @@ io.on("connection", (socket) => {
     console.log(
       socketId + "with symbol: " + playerSymbol + " at location " + selection
     );
-    // Update board with selection.
     updateBoard(playerSymbol, selection);
-    checkForGameOver();
-    // --Need a reset game state function.
-    // New turn.
+    checkForGameOver(socketId);
     newTurn();
+  });
+
+  socket.on("resigning", ({ socketId }) => {
+    if (socketId === firstPlayer.socketId) {
+      io.to(socketId).emit("resigned", "You lost via resignation.");
+      io.to(secondPlayer.socketId).emit(
+        "wonViaResign",
+        "You won via opponent resigning."
+      );
+      endGame();
+    } else {
+      io.to(secondPlayer.socketId).emit(
+        "resigned",
+        "You lost via resignation."
+      );
+      io.to(firstPlayer.socketId).emit(
+        "wonViaResign",
+        "You won via opponent resigning."
+      );
+      endGame();
+    }
   });
 });
 
@@ -163,7 +181,7 @@ const updateBoard = (playerSymbol, selection) => {
   }
 };
 
-const checkForGameOver = () => {
+const checkForGameOver = (socketId) => {
   const completedRow = ["XXX", "OOO"];
   const rows = [
     boardState[0][0] + boardState[0][1] + boardState[0][2],
@@ -177,10 +195,38 @@ const checkForGameOver = () => {
   ];
 
   for (let i = 0; i < rows.length; i++) {
+    let emptySlots = 0;
+    if (rows[i])
     if (rows[i] === completedRow[0] || rows[i] === completedRow[1]) {
-      console.log("Game Over");
+      showBoard();
+      if (socketId === firstPlayer.socketId) {
+        io.to(socketId).emit("Won", "You win!");
+        io.to(secondPlayer.socketId).emit("Lost", "You lost.");
+        endGame();
+      } else {
+        io.to(secondPlayer.socketId).emit("Won", "You win!");
+        io.to(firstPlayer.socketId).emit("Lost", "You lost!");
+        endGame();
+      }
     }
   }
+};
+
+const endGame = () => {
+  console.log("Game is over.")
+  console.log("Disconnecting players.")
+  io.disconnectSockets();
+  usersConnected = 0;
+  clientsConnected = {};
+  firstPlayer = {};
+  secondPlayer = {};
+  unmatched = true;
+  turn = 2;
+  boardState = [
+    [".", ".", "."],
+    [".", ".", "."],
+    [".", ".", "."],
+  ];
 };
 
 server.listen(PORT, () => {
