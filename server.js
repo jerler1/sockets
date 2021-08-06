@@ -191,7 +191,7 @@ const checkForGameOver = (socketId) => {
     boardState[0][1] + boardState[1][1] + boardState[2][2],
     boardState[0][2] + boardState[1][2] + boardState[2][2],
     boardState[0][0] + boardState[1][1] + boardState[2][2],
-    boardState[0][2] + boardState[1][1] + boardState[0][2],
+    boardState[0][2] + boardState[1][1] + boardState[2][0],
   ];
 
   for (let i = 0; i < rows.length; i++) {
