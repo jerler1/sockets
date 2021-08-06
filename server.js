@@ -98,7 +98,6 @@ const startingGame = (socket) => {
   firstPlayer.opponentsSocket = secondPlayer.playersSocket;
   secondPlayer.opponentsSocket = firstPlayer.playersSocket;
   console.log("Starting the game.");
-  console.log("Sending game has started messages.");
   io.to(firstPlayer.socketId).emit(
     "gameStartMessage",
     "Game Started. You are the first player."
