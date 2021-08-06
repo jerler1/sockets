@@ -24,6 +24,14 @@ socket.on("clientdisconnect", (id) => {
   console.log(id);
 });
 
+socket.on("Won", (data) => {
+  console.log(data);
+});
+
+socket.on("Lost", (data) => {
+  console.log(data);
+});
+
 socket.on("yourTurn", (data) => {
   console.log(data.message);
   require("readcommand").read(
@@ -49,6 +57,14 @@ socket.on("opponentsTurn", (data) => {
   );
 });
 
+socket.on("resigned", (data) => {
+  console.log(data);
+});
+
+socket.on("wonViaResign", (data) => {
+  console.log(data);
+});
+
 // Tells the client the game has started and if they are first or second.
 socket.on("gameStartMessage", (message) => {
   console.log(message);
@@ -58,8 +74,6 @@ const resign = (args, socket) => {
   if (args[0] === "r" || args[0] === "retire" || args[0] === "resign") {
     socket.emit("resigning", {
       socketId: socket.id,
-      selection: args[0],
-      playerSymbol: data.playerSymbol,
     });
   }
 };
