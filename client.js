@@ -32,6 +32,10 @@ socket.on("Lost", (data) => {
   console.log(data);
 });
 
+socket.on("tied", (data) => {
+  console.log(data);
+})
+
 socket.on("yourTurn", (data) => {
   console.log(data.message);
   require("readcommand").read(

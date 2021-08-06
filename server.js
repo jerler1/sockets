@@ -211,12 +211,13 @@ const checkForGameOver = (socketId) => {
   if (turn >= 11) {
     showBoard();
     io.emit("tied", "Game is tied.");
+    endGame();
   }
 };
 
 const endGame = () => {
-  console.log("Game is over.")
-  console.log("Disconnecting players.")
+  console.log("Game is over.");
+  console.log("Disconnecting players.");
   io.disconnectSockets();
   usersConnected = 0;
   clientsConnected = {};
